@@ -5,6 +5,11 @@
 
 using namespace std;
 
+class TaskCore;
+class Task;
+
+int days_in_month(int month, int year);
+
 class TaskCore {
 	string title;
 	string description;
@@ -27,13 +32,21 @@ public:
 
 	// Returns deadline as prettified string
 	string get_deadline_string() {
+		time_t current_time = time(0);
 
 		// Creating and initialising time structure
 		struct tm* timeinfo = new tm();
+		localtime_s(timeinfo, &current_time);
+		int current_year = timeinfo->tm_year;
 		localtime_s(timeinfo, &this->deadline);
 
 		// Specifying date formatting string
-		string strf_string = "%e %B, %R";
+		string strf_string;
+
+		if (timeinfo->tm_year == current_year)
+			strf_string = "%e %B, %R";
+		else
+			strf_string = "%e %B %Y, %R";
 
 		// Creating and initialising the actual date string
 		char time[26] = {};
@@ -42,14 +55,7 @@ public:
 		// Freeing memory
 		delete timeinfo;
 
-		// Returning date string with "(passed)" indicator if deadline is passed, otherwise returning only date string
-		if (this->deadline_passed()) {
-			string time_str(time);
-			return "(passed) " + time_str;
-		}
-		else {
-			return time;
-		}
+		return time;
 	}
 
 	// Setters
@@ -68,11 +74,15 @@ public:
 		localtime_s(this->deadline_tm, &deadline);
 	}
 	void set_deadline(tm* deadline_tm) {
-		if (this->deadline_tm) {
+		if (this->deadline_tm != nullptr) {
 			delete this->deadline_tm;
 		}
 		this->deadline_tm = deadline_tm;
 		this->deadline = mktime(deadline_tm);
+	}
+
+	string to_string() {
+		return this->title;
 	}
 
 	// Getters
@@ -131,9 +141,9 @@ public:
 
 		// Creating and filling time structure
 		struct tm* timeinfo = new tm();
-		timeinfo->tm_year = input_range_int("Please enter the year: ", 1900) - 1900;
+		timeinfo->tm_year = input_range_int("Please enter the year: ", 1900, 3000) - 1900;
 		timeinfo->tm_mon = input_range_int("Please enter the month: ", 1, 12) - 1;
-		timeinfo->tm_mday = input_range_int("Please enter the day: ", 1, 31);
+		timeinfo->tm_mday = input_range_int("Please enter the day: ", 1, days_in_month(timeinfo->tm_mon, timeinfo->tm_year));
 		timeinfo->tm_hour = input_range_int("Please enter the hour: ", 0, 23);
 		timeinfo->tm_min = input_range_int("Please enter the minute: ", 0, 59);
 		timeinfo->tm_sec = 0;
@@ -152,4 +162,23 @@ public:
 
 		cout << "-------" << endl;
 	}
+
+	void print_short_info() {
+		beauty_print(this->get_title(), 11, 2);
+		beauty_print(" " + this->get_deadline_string(), this->deadline_passed() ? 4 : 2, 1);
+	}
 };
+
+string to_string(TaskCore obj) {
+	return obj.to_string();
+}
+
+int days_in_month(int month, int year) {
+	if (month == 1) // Only for Feb
+		// Check if year is leap or not
+		return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0) ? 29 : 28;
+	else if (month == 0 || month == 2 || month == 4 || month == 6 || month == 7 || month == 9 || month == 11)
+		return 31;
+	else
+		return 30;
+}

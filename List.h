@@ -3,17 +3,17 @@
 template <typename T>
 class Node {
 private:
-	T value;
+	T* value;
 	Node* next;
 
 public:
-	Node(T value, Node* next) {
+	Node(T* value, Node* next) {
 		this->value = value;
 		this->next = next;
 	}
 
 	// Getters
-	T get_value(){
+	T* get_value(){
 		return this->value;
 	}
 	Node* get_next() {
@@ -21,7 +21,7 @@ public:
 	}
 
 	// Setters
-	void set_value(T value) {
+	void set_value(T* value) {
 		this->value = value;
 	}
 	void set_next(Node* next) {
@@ -36,9 +36,15 @@ private:
 	int n;
 
 public:
-	void insert_beg(T value) { insert(value, 0); }
-	void insert_end(T value) { insert(value, n); }
-	void insert(T value, int position) {
+	List() {
+		this->head = nullptr;
+		this->n = 0;
+	}
+
+	// Insertion
+	void insert_beg(T* value) { insert(value, 0); }
+	void insert_end(T* value) { insert(value, n); }
+	void insert(T *value, int position) {
 		if (position < 0 || position > n) {
 			throw out_of_range("Insertion index is out of range");
 		}
@@ -58,6 +64,7 @@ public:
 		n += 1;
 	}
 
+	// Removal
 	void remove_beg() { remove(0); }
 	void remove_end() { remove(n-1); }
 	void remove(int index) {
@@ -80,8 +87,7 @@ public:
 		}
 		n -= 1;
 	}
-
-	void remove_val(T value, bool all=false) {
+	void remove_val(T* value, bool all=false) {
 		if (this->head) { // If list is not empty
 			Node<T>* prev_ptr = this->head;
 
@@ -116,6 +122,36 @@ public:
 		
 	}
 
+	// Search
+	T* get(int index) {
+		if (index < 0 || index > n) {
+			throw out_of_range("Index is out of range");
+		}
+		Node<T>* ptr = this->head;
+
+		for (int i = 0; i < index; i++, ptr = ptr->get_next());
+
+		return ptr->get_value();
+	}
+	int indexof(T* value) {
+		Node<T>* ptr = this->head;
+		for (int i = 0; i < n; i++, ptr = ptr->get_next()) {
+			if (ptr->get_value() == value) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	// Getters
+	int length() {
+		return this->n;
+	}
+	Node<T>* get_head() {
+		return this->head;
+	}
+
+	// Helpers
 	void print() {
 		cout << "[ ";
 		Node<T>* ptr = this->head;

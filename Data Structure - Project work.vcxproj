@@ -141,7 +141,9 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Heap.h" />
     <ClInclude Include="List.h" />
+    <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
